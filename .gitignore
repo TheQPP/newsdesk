@@ -1,0 +1,9 @@
+config.toml
+*.db
+*.log
+preview.md
+stories.json
+rankings/
+state/
+__pycache__/
+.venv/

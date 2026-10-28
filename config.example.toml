@@ -1,0 +1,58 @@
+# NewsDesk settings. Copy this file to config.toml and fill in the [discord] section.
+
+[discord]
+bot_token = "PASTE-YOUR-BOT-TOKEN-HERE"
+# Right-click the forum channel > Copy Channel ID (turn on Developer Mode first)
+news_forum_id = "000000000000000000"
+# Leave blank (or the same ID) to put satire in the news forum
+satire_forum_id = ""
+# Tip: the token and IDs can also come from environment variables instead of this file:
+# NEWSDESK_BOT_TOKEN, NEWSDESK_NEWS_FORUM_ID, NEWSDESK_SATIRE_FORUM_ID, NEWSDESK_AI_API_KEY
+
+[general]
+opml = "feeds.opml"
+poll_minutes = 10            # how often to check feeds
+max_article_age_hours = 12   # ignore older items
+group_window_hours = 36      # how long a story group stays open for new coverage
+hold_minutes = 10            # wait before creating a thread so related coverage can join first
+min_sources_to_post = 2      # only post stories covered by 2+ outlets (satire always posts); 1 = everything
+first_run_max_threads = 25   # avoid flooding the forum the first time it runs
+first_run_max_satire = 8     # separate first-run limit for satire
+include_bluesky = false      # Bluesky posts mostly repeat the outlets' own links
+export_json = "stories.json" # grouped stories for other tools (e.g. the news channel)
+database = "newsdesk.db"
+timezone = "America/Chicago" # used for ranking times and dates (Windows: pip install tzdata)
+keep_days = 7                # delete history older than this so the database stays small
+log_file = "newsdesk.log"    # rotating log file; "" to turn off
+
+[ranking]
+enabled = true
+times = ["07:00", "17:00"]   # in the timezone above; the first posts the day's TOP STORIES thread, later ones refresh it
+top_n = 10                   # stories in the ranking (Top 10)
+hours = 24                   # look-back window
+include_satire = 3           # short "Top satire" list at the bottom (0 = hide)
+folder = "rankings"          # daily copies saved as rankings/YYYY-MM-DD.md and .json
+
+[grouping]
+similarity = 0.30                 # higher = stricter grouping, lower = bigger groups
+duplicate_title_similarity = 0.90 # same-outlet headline match that counts as a duplicate
+
+[summary]
+# extractive = no AI (picks key sentences)
+# ollama     = local Ollama on this PC (free; run:  ollama pull llama3.1:8b)
+# openai     = any OpenAI-compatible API: Groq (free tier), Gemini, LM Studio, OpenAI, OpenRouter
+#   Groq:   openai_base_url = "https://api.groq.com/openai/v1"   model = "openai/gpt-oss-120b"
+#   Gemini: openai_base_url = "https://generativelanguage.googleapis.com/v1beta/openai"  model = "gemini-2.5-flash"
+backend = "extractive"
+min_sources = 2               # only use AI when 2+ outlets cover the story
+model = "llama3.1:8b"
+ollama_url = "http://localhost:11434"
+openai_base_url = "http://localhost:1234/v1"   # LM Studio default; OpenAI = https://api.openai.com/v1
+openai_api_key = ""
+timeout_seconds = 120
+json_mode = false             # true for Groq / OpenAI / Gemini (forces clean JSON replies)
+max_ai_per_cycle = 12         # AI summaries per cycle; the rest are upgraded on later cycles
+
+# Force a lean for any source name (left | right | satire)
+[source_overrides]
+"Not the Bee" = "right"

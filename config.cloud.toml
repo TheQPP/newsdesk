@@ -1,0 +1,47 @@
+# NewsDesk settings for GitHub Actions. No secrets in here - the bot token, forum IDs and
+# AI key come from the repository's Actions secrets (Settings > Secrets and variables > Actions).
+
+[discord]
+bot_token = ""        # secret NEWSDESK_BOT_TOKEN
+news_forum_id = ""    # secret NEWSDESK_NEWS_FORUM_ID
+satire_forum_id = ""  # secret NEWSDESK_SATIRE_FORUM_ID (optional; blank = news forum)
+
+[general]
+opml = "feeds.opml"
+database = "state/newsdesk.db"      # saved between runs on the "state" branch
+export_json = "state/stories.json"
+log_file = ""                       # GitHub keeps the run logs
+timezone = "America/Chicago"
+max_article_age_hours = 12
+group_window_hours = 36
+hold_minutes = 0                    # runs are already 15-30 minutes apart
+min_sources_to_post = 2
+first_run_max_threads = 25
+first_run_max_satire = 8
+keep_days = 7
+
+[ranking]
+enabled = true
+times = ["07:00", "17:00"]
+top_n = 10
+hours = 24
+include_satire = 3
+folder = "state/rankings"
+
+[grouping]
+similarity = 0.30
+duplicate_title_similarity = 0.90
+
+[summary]
+# Free AI summaries with Groq: add the secret NEWSDESK_AI_API_KEY (console.groq.com > API Keys).
+# Without that secret NewsDesk quietly uses extractive (no-AI) summaries.
+backend = "openai"
+openai_base_url = "https://api.groq.com/openai/v1"
+model = "openai/gpt-oss-120b"
+json_mode = true
+min_sources = 2
+max_ai_per_cycle = 12
+timeout_seconds = 60
+
+[source_overrides]
+"Not the Bee" = "right"

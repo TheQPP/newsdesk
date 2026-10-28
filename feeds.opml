@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<opml version="2.0"><head><title>News Feeds - Left, Center, Right, Satire (verified 2026-10-28)</title></head><body>
+<outline text="Left-Leaning News" title="Left-Leaning News">
+  <outline type="rss" text="The Guardian US" title="The Guardian US" xmlUrl="https://www.theguardian.com/us-news/rss"/>
+  <outline type="rss" text="HuffPost" title="HuffPost" xmlUrl="https://chaski.huffpost.com/us/auto/vertical/us-news"/>
+  <outline type="rss" text="Mother Jones" title="Mother Jones" xmlUrl="https://www.motherjones.com/feed/"/>
+  <outline type="rss" text="The Nation" title="The Nation" xmlUrl="https://www.thenation.com/feed/?post_type=article"/>
+  <outline type="rss" text="The New Republic" title="The New Republic" xmlUrl="https://newrepublic.com/rss.xml"/>
+  <outline type="rss" text="Vox" title="Vox" xmlUrl="https://www.vox.com/rss/index.xml"/>
+  <outline type="rss" text="Slate" title="Slate" xmlUrl="https://slate.com/feeds/all.rss"/>
+  <outline type="rss" text="Salon" title="Salon" xmlUrl="https://www.salon.com/feed/"/>
+  <outline type="rss" text="The Intercept" title="The Intercept" xmlUrl="https://theintercept.com/feed/?lang=en"/>
+  <outline type="rss" text="Democracy Now" title="Democracy Now" xmlUrl="https://www.democracynow.org/democracynow.rss"/>
+  <outline type="rss" text="Common Dreams" title="Common Dreams" xmlUrl="https://www.commondreams.org/feeds/feed.rss"/>
+  <outline type="rss" text="Raw Story" title="Raw Story" xmlUrl="https://www.rawstory.com/feeds/feed.rss"/>
+  <outline type="rss" text="The Atlantic [PAYWALL]" title="The Atlantic [PAYWALL]" xmlUrl="https://www.theatlantic.com/feed/all/"/>
+  <outline type="rss" text="Jacobin" title="Jacobin" xmlUrl="https://jacobin.com/feed"/>
+  <outline type="rss" text="Daily Kos" title="Daily Kos" xmlUrl="https://www.dailykos.com/blogs/main.rss"/>
+  <outline type="rss" text="Talking Points Memo" title="Talking Points Memo" xmlUrl="https://talkingpointsmemo.com/feed"/>
+  <outline type="rss" text="The Bulwark" title="The Bulwark" xmlUrl="https://www.thebulwark.com/feed"/>
+  <outline type="rss" text="The New York Times [PAYWALL]" title="The New York Times [PAYWALL]" xmlUrl="https://rss.nytimes.com/services/xml/rss/nyt/Politics.xml"/>
+  <outline type="rss" text="NBC News" title="NBC News" xmlUrl="https://feeds.nbcnews.com/nbcnews/public/politics"/>
+  <outline type="rss" text="ABC News" title="ABC News" xmlUrl="https://abcnews.go.com/abcnews/politicsheadlines"/>
+  <outline type="rss" text="CBS News" title="CBS News" xmlUrl="https://www.cbsnews.com/latest/rss/politics"/>
+  <outline type="rss" text="MS NOW (formerly MSNBC)" title="MS NOW (formerly MSNBC)" xmlUrl="https://www.ms.now/feed"/>
+  <outline type="rss" text="NPR" title="NPR" xmlUrl="https://feeds.npr.org/1014/rss.xml"/>
+  <outline type="rss" text="Politico" title="Politico" xmlUrl="https://rss.politico.com/politics-news.xml"/>
+  <outline type="rss" text="Axios" title="Axios" xmlUrl="https://api.axios.com/feed/"/>
+  <outline type="rss" text="Los Angeles Times [PAYWALL]" title="Los Angeles Times [PAYWALL]" xmlUrl="https://www.latimes.com/politics/rss2.0.xml"/>
+  <outline type="rss" text="TIME" title="TIME" xmlUrl="https://time.com/feed/"/>
+  <outline type="rss" text="The Daily Beast" title="The Daily Beast" xmlUrl="https://www.thedailybeast.com/arc/outboundfeeds/rss/articles/"/>
+  <outline type="rss" text="Rolling Stone" title="Rolling Stone" xmlUrl="https://www.rollingstone.com/politics/feed/"/>
+  <outline type="rss" text="The New Yorker [PAYWALL]" title="The New Yorker [PAYWALL]" xmlUrl="https://www.newyorker.com/feed/news"/>
+  <outline type="rss" text="Business Insider [PAYWALL]" title="Business Insider [PAYWALL]" xmlUrl="https://feeds.businessinsider.com/custom/all"/>
+  <outline type="rss" text="ProPublica" title="ProPublica" xmlUrl="https://www.propublica.org/feeds/propublica/main"/>
+  <outline type="rss" text="Vanity Fair [PAYWALL]" title="Vanity Fair [PAYWALL]" xmlUrl="https://www.vanityfair.com/feed/rss"/>
+  <outline type="rss" text="The Independent" title="The Independent" xmlUrl="https://www.independent.co.uk/news/world/americas/us-politics/rss"/>
+  <outline type="rss" text="Mediaite" title="Mediaite" xmlUrl="https://www.mediaite.com/feed/"/>
+  <outline type="rss" text="Esquire" title="Esquire" xmlUrl="https://www.esquire.com/rss/news-politics.xml/"/>
+  <outline type="rss" text="The Root" title="The Root" xmlUrl="https://www.theroot.com/rss"/>
+  <outline type="rss" text="Truthout" title="Truthout" xmlUrl="https://truthout.org/feed/"/>
+  <outline type="rss" text="AlterNet" title="AlterNet" xmlUrl="https://www.alternet.org/feeds/feed.rss"/>
+</outline>
+<outline text="Center (AllSides-rated Center)" title="Center (AllSides-rated Center)">
+  <outline type="rss" text="Bloomberg [PAYWALL]" title="Bloomberg [PAYWALL]" xmlUrl="https://feeds.bloomberg.com/politics/news.rss"/>
+  <outline type="rss" text="The Hill" title="The Hill" xmlUrl="https://thehill.com/news/feed/"/>
+  <outline type="rss" text="BBC News" title="BBC News" xmlUrl="https://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml"/>
+  <outline type="rss" text="The Wall Street Journal [PAYWALL]" title="The Wall Street Journal [PAYWALL]" xmlUrl="https://feeds.content.dowjones.io/public/rss/RSSUSnews"/>
+  <outline type="rss" text="NewsNation" title="NewsNation" xmlUrl="https://www.newsnationnow.com/politics/feed/"/>
+  <outline type="rss" text="Newsweek" title="Newsweek" xmlUrl="https://www.newsweek.com/rss.xml"/>
+  <outline type="rss" text="Christian Science Monitor" title="Christian Science Monitor" xmlUrl="https://rss.csmonitor.com/feeds/usa"/>
+  <outline type="rss" text="Straight Arrow News" title="Straight Arrow News" xmlUrl="https://san.com/feed/"/>
+  <outline type="rss" text="Financial Times [PAYWALL]" title="Financial Times [PAYWALL]" xmlUrl="https://www.ft.com/world/us?format=rss"/>
+  <outline type="rss" text="Tangle" title="Tangle" xmlUrl="https://www.readtangle.com/rss/"/>
+</outline>
+<outline text="Right-Leaning News" title="Right-Leaning News">
+  <outline type="rss" text="Fox News Politics" title="Fox News Politics" xmlUrl="https://moxie.foxnews.com/google-publisher/politics.xml"/>
+  <outline type="rss" text="Fox News Latest" title="Fox News Latest" xmlUrl="https://moxie.foxnews.com/google-publisher/latest.xml"/>
+  <outline type="rss" text="Breitbart" title="Breitbart" xmlUrl="https://feeds.feedburner.com/breitbart"/>
+  <outline type="rss" text="The Daily Wire" title="The Daily Wire" xmlUrl="https://www.dailywire.com/feeds/rss.xml"/>
+  <outline type="rss" text="National Review [PAYWALL]" title="National Review [PAYWALL]" xmlUrl="https://www.nationalreview.com/feed/"/>
+  <outline type="rss" text="The Federalist" title="The Federalist" xmlUrl="https://thefederalist.com/feed/"/>
+  <outline type="rss" text="Washington Examiner" title="Washington Examiner" xmlUrl="https://www.washingtonexaminer.com/feed/"/>
+  <outline type="rss" text="NY Post Politics" title="NY Post Politics" xmlUrl="https://nypost.com/politics/feed/"/>
+  <outline type="rss" text="Daily Caller" title="Daily Caller" xmlUrl="https://dailycaller.com/feed/"/>
+  <outline type="rss" text="The Blaze" title="The Blaze" xmlUrl="https://www.theblaze.com/feeds/feed.rss"/>
+  <outline type="rss" text="Townhall" title="Townhall" xmlUrl="https://townhall.com/feed/"/>
+  <outline type="rss" text="RedState" title="RedState" xmlUrl="https://redstate.com/feed/"/>
+  <outline type="rss" text="PJ Media" title="PJ Media" xmlUrl="https://pjmedia.com/feed/"/>
+  <outline type="rss" text="The American Conservative" title="The American Conservative" xmlUrl="https://www.theamericanconservative.com/feed/"/>
+  <outline type="rss" text="Washington Free Beacon" title="Washington Free Beacon" xmlUrl="https://freebeacon.com/feed/"/>
+  <outline type="rss" text="Hot Air" title="Hot Air" xmlUrl="https://hotair.com/feed/"/>
+  <outline type="rss" text="The Daily Signal" title="The Daily Signal" xmlUrl="https://www.dailysignal.com/feed/"/>
+  <outline type="rss" text="Washington Times" title="Washington Times" xmlUrl="https://www.washingtontimes.com/rss/headlines/news/politics/"/>
+  <outline type="rss" text="Reason (libertarian)" title="Reason (libertarian)" xmlUrl="https://reason.com/feed/"/>
+  <outline type="rss" text="Fox Business" title="Fox Business" xmlUrl="https://moxie.foxbusiness.com/google-publisher/latest.xml"/>
+  <outline type="rss" text="Fox News Opinion" title="Fox News Opinion" xmlUrl="https://moxie.foxnews.com/google-publisher/opinion.xml"/>
+  <outline type="rss" text="WSJ Opinion [PAYWALL]" title="WSJ Opinion [PAYWALL]" xmlUrl="https://feeds.content.dowjones.io/public/rss/RSSOpinion"/>
+  <outline type="rss" text="Daily Mail" title="Daily Mail" xmlUrl="https://www.dailymail.co.uk/ushome/index.rss"/>
+  <outline type="rss" text="Just the News" title="Just the News" xmlUrl="https://justthenews.com/rss.xml"/>
+  <outline type="rss" text="The Western Journal" title="The Western Journal" xmlUrl="https://www.westernjournal.com/feed/"/>
+  <outline type="rss" text="The American Spectator" title="The American Spectator" xmlUrl="https://spectator.org/feed/"/>
+  <outline type="rss" text="The Post Millennial" title="The Post Millennial" xmlUrl="https://thepostmillennial.com/feed"/>
+  <outline type="rss" text="The Dispatch [PAYWALL]" title="The Dispatch [PAYWALL]" xmlUrl="https://thedispatch.com/feed/"/>
+  <outline type="rss" text="The Gateway Pundit" title="The Gateway Pundit" xmlUrl="https://www.thegatewaypundit.com/feed/"/>
+  <outline type="rss" text="NewsBusters" title="NewsBusters" xmlUrl="https://www.newsbusters.org/rss.xml"/>
+  <outline type="rss" text="OAN" title="OAN" xmlUrl="https://www.oann.com/feed/"/>
+  <outline type="rss" text="RealClearPolitics" title="RealClearPolitics" xmlUrl="https://www.realclearpolitics.com/index.xml"/>
+  <outline type="rss" text="The National Pulse" title="The National Pulse" xmlUrl="https://thenationalpulse.com/feed/"/>
+  <outline type="rss" text="American Thinker" title="American Thinker" xmlUrl="https://feeds.feedburner.com/americanthinker_articles"/>
+  <outline type="rss" text="The Free Press [PAYWALL]" title="The Free Press [PAYWALL]" xmlUrl="https://www.thefp.com/feed"/>
+  <outline type="rss" text="American Greatness" title="American Greatness" xmlUrl="https://amgreatness.com/feed/"/>
+  <outline type="rss" text="Louder with Crowder" title="Louder with Crowder" xmlUrl="https://www.louderwithcrowder.com/feeds/feed.rss"/>
+  <outline type="rss" text="Newsmax" title="Newsmax" xmlUrl="https://www.newsmax.com/rss/Politics/1/"/>
+</outline>
+<outline text="Satire (label on air as SATIRE)" title="Satire (label on air as SATIRE)">
+  <outline type="rss" text="The Onion [SATIRE]" title="The Onion [SATIRE]" xmlUrl="https://theonion.com/feed/"/>
+  <outline type="rss" text="The Babylon Bee [SATIRE]" title="The Babylon Bee [SATIRE]" xmlUrl="https://babylonbee.com/feed"/>
+  <outline type="rss" text="The Borowitz Report [SATIRE]" title="The Borowitz Report [SATIRE]" xmlUrl="https://www.borowitzreport.com/feed"/>
+  <outline type="rss" text="Duffel Blog [SATIRE]" title="Duffel Blog [SATIRE]" xmlUrl="https://www.duffelblog.com/rss"/>
+  <outline type="rss" text="ClickHole [SATIRE]" title="ClickHole [SATIRE]" xmlUrl="https://clickhole.com/feed/"/>
+  <outline type="rss" text="The Hard Times [SATIRE]" title="The Hard Times [SATIRE]" xmlUrl="https://thehardtimes.net/feed/"/>
+  <outline type="rss" text="Reductress [SATIRE]" title="Reductress [SATIRE]" xmlUrl="https://reductress.com/feed/"/>
+  <outline type="rss" text="Not the Bee [NOT satire - real news, right-leaning commentary]" title="Not the Bee [NOT satire - real news, right-leaning commentary]" xmlUrl="https://notthebee.com/feed"/>
+  <outline type="rss" text="The Beaverton [SATIRE]" title="The Beaverton [SATIRE]" xmlUrl="https://www.thebeaverton.com/feed/"/>
+  <outline type="rss" text="Genesius Times [SATIRE]" title="Genesius Times [SATIRE]" xmlUrl="https://genesiustimes.com/feed/"/>
+  <outline type="rss" text="The Daily Mash [SATIRE]" title="The Daily Mash [SATIRE]" xmlUrl="https://www.thedailymash.co.uk/feed"/>
+  <outline type="rss" text="The Chaser [SATIRE]" title="The Chaser [SATIRE]" xmlUrl="https://chaser.com.au/feed/"/>
+  <outline type="rss" text="The Shovel [SATIRE]" title="The Shovel [SATIRE]" xmlUrl="https://www.theshovel.com.au/feed/"/>
+  <outline type="rss" text="Points in Case [SATIRE]" title="Points in Case [SATIRE]" xmlUrl="https://www.pointsincase.com/feed"/>
+</outline>
+<outline text="Bluesky (free RSS stand-ins for X)">
+  <outline type="rss" text="The Onion [SATIRE] (Bluesky)" xmlUrl="https://bsky.app/profile/theonion.com/rss"/>
+  <outline type="rss" text="Mother Jones (Bluesky)" xmlUrl="https://bsky.app/profile/motherjones.com/rss"/>
+  <outline type="rss" text="The Bulwark (Bluesky)" xmlUrl="https://bsky.app/profile/thebulwark.com/rss"/>
+  <outline type="rss" text="The Guardian (Bluesky)" xmlUrl="https://bsky.app/profile/theguardian.com/rss"/>
+  <outline type="rss" text="Reason (Bluesky)" xmlUrl="https://bsky.app/profile/reason.com/rss"/>
+</outline></body></opml>

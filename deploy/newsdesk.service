@@ -1,0 +1,19 @@
+# systemd unit for an always-on Linux server (e.g. Oracle Cloud Always Free VM).
+# Install:  sudo cp deploy/newsdesk.service /etc/systemd/system/
+#           sudo systemctl daemon-reload && sudo systemctl enable --now newsdesk
+# Logs:     journalctl -u newsdesk -f
+[Unit]
+Description=NewsDesk RSS to Discord forum bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/newsdesk
+ExecStart=/home/ubuntu/newsdesk/.venv/bin/python newsdesk.py
+Restart=always
+RestartSec=60
+
+[Install]
+WantedBy=multi-user.target

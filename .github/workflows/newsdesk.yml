@@ -1,0 +1,79 @@
+name: NewsDesk
+
+on:
+  schedule:
+    # Every 15 minutes (public repo = free). For a PRIVATE repo change to "*/30 * * * *"
+    # to stay under the 2,000 free minutes a month.
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "What to run"
+        type: choice
+        default: cycle
+        options: [cycle, ranking, check, setup, test-post]
+
+permissions:
+  contents: write   # needed to save the database to the "state" branch
+
+concurrency:
+  group: newsdesk
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      NEWSDESK_CONFIG: config.cloud.toml
+      NEWSDESK_BOT_TOKEN: ${{ secrets.NEWSDESK_BOT_TOKEN }}
+      NEWSDESK_NEWS_FORUM_ID: ${{ secrets.NEWSDESK_NEWS_FORUM_ID }}
+      NEWSDESK_SATIRE_FORUM_ID: ${{ secrets.NEWSDESK_SATIRE_FORUM_ID }}
+      NEWSDESK_AI_API_KEY: ${{ secrets.NEWSDESK_AI_API_KEY }}
+      REPO_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Load saved state
+        run: |
+          if git ls-remote --exit-code --heads "$REPO_URL" state > /dev/null 2>&1; then
+            git clone --quiet --depth 1 --branch state "$REPO_URL" state
+            rm -rf state/.git
+            echo "Loaded state: $(ls state)"
+          else
+            mkdir -p state
+            echo "No saved state yet (first run)"
+          fi
+          touch state/.loaded
+
+      - name: Run NewsDesk
+        run: |
+          MODE="${{ github.event.inputs.mode || 'cycle' }}"
+          case "$MODE" in
+            cycle)     python newsdesk.py --once ;;
+            ranking)   python newsdesk.py --ranking ;;
+            check)     python newsdesk.py --check ;;
+            setup)     python newsdesk.py --setup ;;
+            test-post) python newsdesk.py --test-post ;;
+          esac
+
+      - name: Save state
+        if: always()
+        run: |
+          # only save if the load step finished, so a failed load can never wipe the history
+          [ -f state/.loaded ] && [ -f state/newsdesk.db ] || { echo "Nothing to save"; exit 0; }
+          cd state
+          rm -f .loaded
+          git init --quiet -b state
+          git config user.name "newsdesk-bot"
+          git config user.email "newsdesk-bot@users.noreply.github.com"
+          git add -A
+          git commit --quiet -m "NewsDesk state $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push --quiet --force "$REPO_URL" state

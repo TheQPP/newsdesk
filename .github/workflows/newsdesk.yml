@@ -4,7 +4,7 @@ on:
   schedule:
     # Every 15 minutes (public repo = free). For a PRIVATE repo change to "*/30 * * * *"
     # to stay under the 2,000 free minutes a month.
-    - cron: "*/15 * * * *"
+    - cron: "*/30 * * * *"
   workflow_dispatch:
     inputs:
       mode:

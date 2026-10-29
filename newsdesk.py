@@ -747,6 +747,26 @@ class Discord:
             return r.json() if r.text else {}
         raise DiscordError(429, "Discord rate limit retries exhausted")
 
+    def pinned_in_forum(self, forum_id) -> list[dict]:
+        """Every pinned post in a forum, open or archived (Discord allows one pinned post per forum)."""
+        guild = self.req("GET", f"/channels/{forum_id}").get("guild_id")
+        found = {}
+        if guild:
+            for th in self.req("GET", f"/guilds/{guild}/threads/active").get("threads", []):
+                found[th["id"]] = th
+        for th in self.req("GET", f"/channels/{forum_id}/threads/archived/public", params={"limit": 50}).get("threads", []):
+            found.setdefault(th["id"], th)
+        return [t for t in found.values() if t.get("parent_id") == forum_id and int(t.get("flags") or 0) & 2]
+
+    def unpin_thread(self, th: dict):
+        flags = int(th.get("flags") or 0) & ~2
+        if (th.get("thread_metadata") or {}).get("archived"):
+            self.req("PATCH", f"/channels/{th['id']}", json={"archived": False})
+            self.req("PATCH", f"/channels/{th['id']}", json={"flags": flags})
+            self.req("PATCH", f"/channels/{th['id']}", json={"archived": True})
+        else:
+            self.req("PATCH", f"/channels/{th['id']}", json={"flags": flags})
+
     def forum_tags(self, forum_id) -> dict[str, str]:
         ch = self.req("GET", f"/channels/{forum_id}")
         return {t["name"]: t["id"] for t in ch.get("available_tags", [])}
@@ -1155,20 +1175,46 @@ def ranking_report(con, cfg, dry_run=False, label=None) -> str:
                         json={"name": title, "applied_tags": tag, "message": msg})
             con.execute("INSERT OR REPLACE INTO meta VALUES(?,?)", (key, th["id"]))
             con.commit()
-            # pin today's ranking to the top of the forum (one pinned post per forum, so unpin older ones)
-            for old in con.execute("SELECT v FROM meta WHERE k LIKE 'ranking_thread_%' AND k<>?", (key,)):
-                try:
-                    dc.req("PATCH", f"/channels/{old[0]}", json={"flags": 0})
-                except RuntimeError:
-                    pass
-            try:
-                dc.req("PATCH", f"/channels/{th['id']}", json={"flags": 2})
-            except RuntimeError as e:
-                log.warning("Could not pin the ranking post (needs Manage Threads): %s", e)
+            pin_ranking(dc, con, forum, th["id"], key)
         log.info("Ranking posted to Discord")
     except RuntimeError as e:
         log.error("Ranking post failed: %s", e)
     return "\n".join(md)
+
+
+RANKING_TITLE = re.compile(r"^TOP \d+ STORIES - ")
+
+
+def pin_ranking(dc, con, forum: str, new_id: str, key: str):
+    """Pin the newest Top 10 and unpin older ones. Looks in Discord itself, so it also catches rankings
+    posted by another copy of the bot (for example the PC copy before moving to GitHub)."""
+    ours = {r[0] for r in con.execute("SELECT v FROM meta WHERE k LIKE 'ranking_thread_%' AND k<>?", (key,))}
+    other = None
+    try:
+        pinned = dc.pinned_in_forum(forum)
+    except RuntimeError as e:
+        log.warning("Could not list pinned posts (%s); unpinning only rankings this bot remembers", e)
+        pinned = [{"id": i, "flags": 2} for i in ours]
+    for th in pinned:
+        if th["id"] == new_id:
+            continue
+        if th["id"] in ours or RANKING_TITLE.match(th.get("name", "")):
+            try:
+                dc.unpin_thread(th)
+                log.info("Unpinned older ranking: %s", th.get("name", th["id"]))
+            except RuntimeError as e:
+                log.warning("Could not unpin older ranking %s: %s", th.get("name", th["id"]), e)
+        else:
+            other = th.get("name", th["id"])
+    try:
+        dc.req("PATCH", f"/channels/{new_id}", json={"flags": 2})
+        log.info("Pinned today's ranking to the top of the forum")
+    except RuntimeError as e:
+        if other:
+            log.warning("Could not pin the ranking: another post is pinned in the forum (%s). Discord allows "
+                        "one pinned post per forum - unpin it and the next ranking will pin.", other)
+        else:
+            log.warning("Could not pin the ranking post (bot needs Manage Threads): %s", e)
 
 
 def ranking_due(con, cfg) -> str | None:

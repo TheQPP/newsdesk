@@ -40,7 +40,12 @@ openai_base_url = "https://api.groq.com/openai/v1"
 model = "openai/gpt-oss-120b"
 json_mode = true
 min_sources = 2
-max_ai_per_cycle = 12
+max_ai_per_cycle = 12            # AI summaries per run (runs are every 30 minutes)
+max_ai_tokens_per_day = 600000   # Groq Developer plan: about $0.36/day worst case (~$11/month).
+                                 # On Groq's FREE plan use 170000 (its limit is 200,000/day).
+max_output_tokens = 2000         # caps each AI reply so one runaway answer can't run up the bill
+ai_time_budget_seconds = 300     # stop AI work after 5 minutes so a run never hits the 10-minute timeout
+reasoning_effort = "low"         # gpt-oss: short reasoning = far fewer tokens per summary
 timeout_seconds = 60
 
 [source_overrides]

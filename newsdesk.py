@@ -36,7 +36,7 @@ import xml.etree.ElementTree as ET
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
@@ -113,6 +113,10 @@ def load_config(path: Path) -> dict:
     s.setdefault("timeout_seconds", 120)
     s.setdefault("json_mode", False)          # send response_format=json_object (Groq/OpenAI/Gemini support it)
     s.setdefault("max_ai_per_cycle", 12)      # stay inside free-tier rate limits
+    s.setdefault("max_ai_tokens_per_day", 0)   # 0 = no cap; Groq free = 200,000/day, so the cloud config uses 170,000
+    s.setdefault("ai_time_budget_seconds", 0)  # 0 = no cap; stop AI work after this long so a run can't time out
+    s.setdefault("max_output_tokens", 0)       # 0 = no cap; caps each AI reply (reasoning + summary) to limit cost
+    s.setdefault("reasoning_effort", "")       # "low" keeps gpt-oss models from spending tokens on long reasoning
     g.setdefault("timezone", "")               # e.g. "America/Chicago"; blank = this computer's clock
     g.setdefault("keep_days", 7)               # prune older history so the database stays small
     g.setdefault("log_file", "newsdesk.log")
@@ -509,7 +513,42 @@ ITEMS:
 {items}"""
 
 
-AI_BUDGET = {"left": 0}
+AI_BUDGET = {"left": 0, "deadline": 0.0, "paused_until": 0.0, "tokens": 0, "day": "", "warned": False}
+AI_MILESTONES = (3, 5, 8, 12, 20)   # re-summarize an existing thread with AI only when it reaches these outlet counts
+
+
+class AILimit(RuntimeError):
+    """The AI provider said 'not now' (daily quota or a long per-minute wait)."""
+    def __init__(self, msg, daily=False, retry=0.0):
+        super().__init__(msg)
+        self.daily, self.retry = daily, retry
+
+
+def _retry_seconds(text: str) -> float:
+    m = re.search(r"try again in\s*(?:(\d+)h)?\s*(?:(\d+)m(?!s))?\s*(?:([\d.]+)s)?", text or "")
+    if not m or not any(m.groups()):
+        return 0.0
+    h, mi, se = m.groups()
+    return int(h or 0) * 3600 + int(mi or 0) * 60 + float(se or 0)
+
+
+def ai_available(cfg) -> bool:
+    now = time.time()
+    if AI_BUDGET["left"] <= 0 or now < AI_BUDGET["paused_until"]:
+        return False
+    if AI_BUDGET["deadline"] and now > AI_BUDGET["deadline"]:
+        return False
+    cap = cfg["summary"]["max_ai_tokens_per_day"]
+    return not (cap and AI_BUDGET["tokens"] >= cap)
+
+
+def _ai_pause(seconds: float, why: str):
+    AI_BUDGET["paused_until"] = max(AI_BUDGET["paused_until"], time.time() + seconds)
+    AI_BUDGET["left"] = 0
+    if not AI_BUDGET["warned"]:
+        AI_BUDGET["warned"] = True
+        until = datetime.fromtimestamp(AI_BUDGET["paused_until"]).strftime("%H:%M")
+        log.warning("%s - using quick summaries; AI summaries resume after %s (UTC on GitHub)", why, until)
 
 
 def wants_ai(cfg, arts, pool) -> bool:
@@ -521,7 +560,7 @@ def wants_ai(cfg, arts, pool) -> bool:
 def summarize(cfg, arts: list[sqlite3.Row], pool: str) -> dict:
     s = cfg["summary"]
     use_ai = wants_ai(cfg, arts, pool)
-    if use_ai and AI_BUDGET["left"] <= 0:
+    if use_ai and not ai_available(cfg):
         out = extractive_summary(arts)
         out["ai_pending"] = True      # try AI again next cycle
         return out
@@ -543,8 +582,17 @@ def summarize(cfg, arts: list[sqlite3.Row], pool: str) -> dict:
                 if data.get("topic") not in TOPICS:
                     data["topic"] = guess_topic(arts)
                 return data
+        except AILimit as e:
+            if e.daily:
+                _ai_pause(e.retry or 3600, "AI daily limit reached")
+            else:
+                AI_BUDGET["left"] = 0          # busy right now; try again next run
+                log.info("AI is rate limited (%s); finishing this run with quick summaries", e)
+            out = extractive_summary(arts)
+            out["ai_pending"] = True
+            return out
         except Exception as e:  # noqa: BLE001
-            log.warning("AI summary failed, using extractive fallback: %s", e)
+            log.warning("AI summary failed, using extractive fallback: %s", redact(str(e))[:300])
     return extractive_summary(arts)
 
 
@@ -553,7 +601,7 @@ def _llm(cfg, prompt: str) -> str:
     if s["backend"] == "ollama":
         r = requests.post(f"{s['ollama_url'].rstrip('/')}/api/chat", timeout=s["timeout_seconds"], json={
             "model": s["model"], "stream": False, "format": "json",
-            "options": {"temperature": 0.2},
+            "options": {"temperature": 0.2, **({"num_predict": s["max_output_tokens"]} if s["max_output_tokens"] else {})},
             "messages": [{"role": "user", "content": prompt}]})
         r.raise_for_status()
         return r.json()["message"]["content"]
@@ -563,21 +611,37 @@ def _llm(cfg, prompt: str) -> str:
     body = {"model": s["model"], "temperature": 0.2, "messages": [{"role": "user", "content": prompt}]}
     if s["json_mode"]:
         body["response_format"] = {"type": "json_object"}
+    if s.get("reasoning_effort"):
+        body["reasoning_effort"] = s["reasoning_effort"]
+    if s.get("max_output_tokens"):
+        body["max_completion_tokens"] = int(s["max_output_tokens"])
     for attempt in range(3):
         r = requests.post(f"{s['openai_base_url'].rstrip('/')}/chat/completions", headers=headers,
                           timeout=s["timeout_seconds"], json=body)
-        if r.status_code == 429 and attempt < 2:
-            wait = min(float(r.headers.get("retry-after", 10) or 10), 60)
-            log.info("AI rate limit, waiting %.0fs", wait)
-            time.sleep(wait)
+        if r.status_code == 429:
+            text = r.text or ""
+            try:
+                wait = float(r.headers.get("retry-after", 0) or 0)
+            except ValueError:
+                wait = 0.0
+            wait = max(wait, _retry_seconds(text))
+            if re.search(r"per day|\(TPD\)|\(RPD\)|daily|quota", text, re.I):
+                raise AILimit("daily limit", daily=True, retry=wait)
+            if wait > 20 or attempt >= 2 or (AI_BUDGET["deadline"] and time.time() + wait > AI_BUDGET["deadline"]):
+                raise AILimit(f"wait {wait:.0f}s", retry=wait)
+            log.info("AI rate limit, waiting %.0fs", max(wait, 2))
+            time.sleep(max(wait, 2))
             continue
         if r.status_code >= 400:
             raise RuntimeError(f"AI API {r.status_code}: {r.text[:200]}")
-        content = r.json()["choices"][0]["message"].get("content") or ""
+        data = r.json()
+        used = (data.get("usage") or {}).get("total_tokens") or 0
+        AI_BUDGET["tokens"] += int(used)
+        content = data["choices"][0]["message"].get("content") or ""
         if not content.strip():
             raise RuntimeError("AI returned an empty reply")
         return content
-    raise RuntimeError("AI rate limit retries exhausted")
+    raise AILimit("rate limit retries exhausted")
 
 
 def _parse_json(raw: str) -> dict:
@@ -783,7 +847,7 @@ def publish(con, cfg, dry_run=False) -> int:
     g = cfg["general"]
     now = time.time()
     hold = g["hold_minutes"] * 60
-    AI_BUDGET["left"] = cfg["summary"]["max_ai_per_cycle"]
+    ai_load(con, cfg)
     if con.execute("SELECT 1 FROM meta WHERE k='satire_requeued'").fetchone() is None:
         # one-time repair: older versions skipped every satire piece on the first run
         fresh = now - g["max_article_age_hours"] * 3600
@@ -836,10 +900,15 @@ def publish(con, cfg, dry_run=False) -> int:
         if not new_thread and not has_new and not c["ai_pending"]:
             con.execute("UPDATE clusters SET dirty=0 WHERE id=?", (c["id"],))
             continue
-        if c["ai_pending"] and not has_new and not new_thread and AI_BUDGET["left"] <= 0:
+        if c["ai_pending"] and not has_new and not new_thread and not ai_available(cfg):
             continue   # still waiting for AI budget; keep the extractive version for now
-        summ = summarize(cfg, arts, c["pool"])
+        prev = json.loads(c["summary_json"]) if c["summary_json"] else {}
+        prev_n = prev.get("n_sources", 0)
+        reuse = (not new_thread and prev.get("engine") not in (None, "extractive") and not c["ai_pending"]
+                 and not any(prev_n < m <= len(sources) for m in AI_MILESTONES))
+        summ = dict(prev) if reuse else summarize(cfg, arts, c["pool"])
         pending = 1 if summ.pop("ai_pending", False) else 0
+        summ["n_sources"] = len(sources)
         if dry_run:
             con.execute("UPDATE clusters SET dirty=0, ai_pending=?, headline=?, summary_json=?, topic=? WHERE id=?",
                         (pending, summ.get("headline"), json.dumps(summ), summ.get("topic"), c["id"]))
@@ -915,8 +984,31 @@ def publish(con, cfg, dry_run=False) -> int:
         con.commit()
         time.sleep(1.0)
     con.execute("INSERT OR REPLACE INTO meta VALUES('first_run_done','1')")
+    ai_save(con)
     con.commit()
     return created
+
+
+def ai_load(con, cfg):
+    """Restore today's AI token count and any pause from earlier runs."""
+    s = cfg["summary"]
+    day = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    meta = dict(con.execute("SELECT k, v FROM meta WHERE k IN ('ai_day','ai_tokens','ai_paused_until')").fetchall())
+    AI_BUDGET.update(left=s["max_ai_per_cycle"], warned=False, day=day,
+                     tokens=int(meta.get("ai_tokens", 0) or 0) if meta.get("ai_day") == day else 0,
+                     paused_until=float(meta.get("ai_paused_until", 0) or 0),
+                     deadline=time.time() + s["ai_time_budget_seconds"] if s["ai_time_budget_seconds"] else 0.0)
+    cap = s["max_ai_tokens_per_day"]
+    if wants_ai(cfg, [{"source": "a"}, {"source": "b"}], "news") and cap and AI_BUDGET["tokens"] >= cap:
+        midnight = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)
+        log.info("Daily AI token budget used (%d/%d); quick summaries until %s UTC",
+                 AI_BUDGET["tokens"], cap, midnight.strftime("%H:%M"))
+
+
+def ai_save(con):
+    con.execute("INSERT OR REPLACE INTO meta VALUES('ai_day', ?)", (AI_BUDGET["day"],))
+    con.execute("INSERT OR REPLACE INTO meta VALUES('ai_tokens', ?)", (str(AI_BUDGET["tokens"]),))
+    con.execute("INSERT OR REPLACE INTO meta VALUES('ai_paused_until', ?)", (str(AI_BUDGET["paused_until"]),))
 
 
 # ---------------------------------------------------------------- ranking ---
